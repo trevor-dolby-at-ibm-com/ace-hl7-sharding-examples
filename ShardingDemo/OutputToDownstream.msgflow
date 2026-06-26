@@ -6,7 +6,7 @@
     <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ShardingDemo/icons/full/obj16/OutputToDownstream.gif"/>
     <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/ShardingDemo/icons/full/obj30/OutputToDownstream.gif"/>
     <composition>
-      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="55,45" queueName="DEMO.MAP.OUT">
+      <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="65,44" queueName="DEMO.MAP.OUT">
         <translation xmi:type="utility:ConstantString" string="DEMO.MAP.OUT"/>
       </nodes>
       <nodes xmi:type="ComIbmPassthru.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="339,44">

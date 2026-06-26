@@ -9,10 +9,10 @@
       <nodes xmi:type="ComIbmMQOutput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_6" location="651,112" destinationMode="list">
         <translation xmi:type="utility:ConstantString" string="DEMO.SHARD.MAP.IN.*"/>
       </nodes>
-      <nodes xmi:type="ComIbmScheduler.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="224,265" scheduleIdentifier="stats" interval="10" unit="second">
+      <nodes xmi:type="ComIbmScheduler.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_7" location="152,200" scheduleIdentifier="stats" interval="10" unit="second">
         <translation xmi:type="utility:ConstantString" string="Scheduler Notification Every Minute"/>
       </nodes>
-      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="465,265" computeExpression="esql://routine/#InputToFanOut_ReportStatistics.Main">
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_8" location="393,200" computeExpression="esql://routine/#InputToFanOut_ReportStatistics.Main">
         <translation xmi:type="utility:ConstantString" string="ReportStatistics"/>
       </nodes>
       <nodes xmi:type="ComIbmMQInput.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="104,111" queueName="DEMO.IN" messageDomainProperty="BLOB">
