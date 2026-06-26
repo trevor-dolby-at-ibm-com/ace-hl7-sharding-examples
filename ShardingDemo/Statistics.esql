@@ -1,0 +1,97 @@
+-- Copyright (c) 2026 Open Technologies for Integration
+-- Licensed under the MIT license (see LICENSE for details)
+
+/*
+  messageStats.{shard}
+    statistics
+      messageCount (INTEGER)
+    
+    Timer will print one 8099 per message type that has a non-zero reply count
+    
+    Shard: %d - message count: %d
+
+*/
+
+DECLARE messageStats SHARED ROW;
+
+CREATE PROCEDURE incrementShardCount(IN shard CHARACTER)
+stats: BEGIN ATOMIC
+	
+	--LOG EVENT SEVERITY 2 CATALOG 'BIPmsgs' MESSAGE 8099 VALUES('incrementShardCount', 
+	--		shard, 'messageStats.{shard}.statistics.messageCount: ' || CAST(messageStats.{shard}.statistics.messageCount AS CHARACTER CCSID 1208));
+			
+	IF messageStats.{shard}.statistics.messageCount IS NULL THEN
+		SET messageStats."0".statistics.messageCount = 0;
+		SET messageStats."1".statistics.messageCount = 0;
+		SET messageStats."2".statistics.messageCount = 0;
+		SET messageStats."3".statistics.messageCount = 0;
+		SET messageStats."4".statistics.messageCount = 0;
+		SET messageStats."5".statistics.messageCount = 0;
+		SET messageStats."6".statistics.messageCount = 0;
+		SET messageStats."7".statistics.messageCount = 0;
+		SET messageStats."8".statistics.messageCount = 0;
+		SET messageStats."9".statistics.messageCount = 0;
+	END IF;
+
+	SET messageStats.{shard}.statistics.messageCount = messageStats.{shard}.statistics.messageCount + 1;
+END;
+
+-- Might need to only store the stats in this shared row
+DECLARE messageStatsHistory SHARED ROW;
+
+CREATE PROCEDURE reportStatistics()
+BEGIN
+	DELETE FIELD messageStatsHistory.older;
+	DECLARE temp ROW;
+	SET temp.temp = messageStatsHistory.previous;
+	SET messageStatsHistory.older = temp.temp;
+	SET temp.temp = messageStatsHistory.current;
+	SET messageStatsHistory.previous = temp.temp;
+	CALL copyStatisticsToHistory();
+	-- We now have the current stats and the last two (if they exist)
+    DECLARE I INTEGER 1;
+    DECLARE J INTEGER;
+    DECLARE shard CHARACTER;
+    SET J = CARDINALITY(messageStatsHistory.current.*[]);
+    WHILE I <= J DO
+    	SET shard = FIELDNAME(messageStatsHistory.current.*[I]);
+    	-- Assume no previous stats
+    	DECLARE messageCountSinceLastStatsPrint INTEGER messageStatsHistory.current.{shard}.statistics.messageCount;
+    	
+    	IF messageStatsHistory.previous.{shard}.statistics.messageCount IS NOT NULL THEN
+    		SET messageCountSinceLastStatsPrint = messageStatsHistory.current.{shard}.statistics.messageCount - messageStatsHistory.previous.{shard}.statistics.messageCount;
+    	END IF;
+    	IF messageCountSinceLastStatsPrint IS NULL THEN
+    		SET messageCountSinceLastStatsPrint = 0;
+    	END IF;
+    	DECLARE shouldPrint BOOLEAN TRUE;
+    	IF messageCountSinceLastStatsPrint = 0 THEN
+    		-- Avoid printing if there's nothing to print, but we'll print one line when it changes to all zeroes
+    		IF messageStatsHistory.older.{shard}.statistics.messageCount = messageStatsHistory.current.{shard}.statistics.messageCount THEN
+    		   SET shouldPrint = FALSE;
+    		ELSE	
+    		   SET shouldPrint = TRUE;
+    		END IF;
+    	END IF;
+    	IF shouldPrint IS TRUE THEN
+    		-- Shard: %d - message count: %d   
+	    	LOG EVENT SEVERITY 2 CATALOG 'BIPmsgs' MESSAGE 8099 VALUES('Shard', 
+			shard, 'message count: ' || CAST(messageCountSinceLastStatsPrint AS CHARACTER CCSID 1208));
+    	END IF;
+        SET I = I + 1;
+    END WHILE;
+	
+END;
+
+
+CREATE PROCEDURE copyStatisticsToHistory()
+stats: BEGIN ATOMIC
+	DECLARE temp ROW;
+	SET temp.temp = messageStats;
+	SET messageStatsHistory.current = temp.temp;
+END;
+
+
+
+
+

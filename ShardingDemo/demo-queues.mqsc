@@ -1,0 +1,15 @@
+def ql(DEMO.IN) replace
+def ql(DEMO.REPLY) replace
+def ql(DEMO.SHARD.MAP.IN.0) replace
+def ql(DEMO.SHARD.MAP.IN.1) replace
+def ql(DEMO.SHARD.MAP.IN.2) replace
+def ql(DEMO.SHARD.MAP.IN.3) replace
+def ql(DEMO.SHARD.MAP.IN.4) replace
+def ql(DEMO.SHARD.MAP.IN.5) replace
+def ql(DEMO.SHARD.MAP.IN.6) replace
+def ql(DEMO.SHARD.MAP.IN.7) replace
+def ql(DEMO.SHARD.MAP.IN.8) replace
+def ql(DEMO.SHARD.MAP.IN.9) replace
+def ql(DEMO.MAP.OUT) replace
+def ql(DEMO.SINGLETHREAD.IN) replace
+

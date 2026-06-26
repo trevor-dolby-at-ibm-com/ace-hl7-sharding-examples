@@ -1,0 +1,10 @@
+-- Copyright (c) 2026 Open Technologies for Integration
+-- Licensed under the MIT license (see LICENSE for details)
+
+CREATE COMPUTE MODULE InputToFanOut_ReportStatistics
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL reportStatistics();
+		RETURN TRUE;
+	END;
+END MODULE;

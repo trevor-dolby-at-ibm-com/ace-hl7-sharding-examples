@@ -1,0 +1,26 @@
+-- Copyright (c) 2026 Open Technologies for Integration
+-- Licensed under the MIT license (see LICENSE for details)
+
+CREATE COMPUTE MODULE InputToFanOut_LoadBalance
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+		DECLARE shardChar CHARACTER '0';
+		
+		-- Using a temporary ROW variable seems to cause performance issues, probably due to message group destruction
+	    --DECLARE tempRow ROW;
+		CREATE LASTCHILD OF Environment.Variables DOMAIN('DFDL') PARSE(InputRoot.BLOB.BLOB, 0, 1208, '{HL7v27DFDLLibrary}', '{urn:hl7-org:v2xml}:ADT_A03', '', 0);
+		
+		-- Testing
+		--LOG EVENT SEVERITY 2 CATALOG 'BIPmsgs' MESSAGE 8099 VALUES('InputToSingleThread_LoadBalance',
+		--                 'InputRoot.DFDL.ns:ADT_A03.ns:PID.ns:"PID.3.PatientIdentifierList".ns:"CX.1"', InputRoot.DFDL.ns:ADT_A03.ns:PID.ns:"PID.3.PatientIdentifierList".ns:"CX.1");
+		SET shardChar = RIGHT(Environment.Variables.DFDL.ns:ADT_A03.ns:PID.ns:"PID.3.PatientIdentifierList".ns:"CX.1", 1);
+		
+		CALL incrementShardCount(shardChar);
+		
+		SET OutputLocalEnvironment.Destination.MQ.DestinationData.queueName = 'DEMO.SHARD.MAP.IN.' || shardChar;
+		
+		RETURN TRUE;
+	END;
+
+END MODULE;

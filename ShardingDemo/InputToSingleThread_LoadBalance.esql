@@ -1,0 +1,47 @@
+-- Copyright (c) 2026 Open Technologies for Integration
+-- Licensed under the MIT license (see LICENSE for details)
+
+DECLARE ns NAMESPACE 'urn:hl7-org:v2xml';
+
+-- This entire flow is used for debugging and prototyping, with the 
+-- main fan-out flow being the one to use for performance testing.
+CREATE COMPUTE MODULE InputToSingleThread_LoadBalance
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		SET OutputRoot = InputRoot;
+
+		/* Test hacking
+		SET shardChar = InputRoot.MQMD.MsgId;
+		
+		-- For big-endian systems, where the last digit increments
+		-- SET shardChar = LEFT(RIGHT(shardChar, 2), 1);
+		-- For little-endian systems, where the bytes are swapped
+		SET shardChar = LEFT(RIGHT(shardChar, 8), 1);
+	    SET shardChar = 
+	    CASE  
+	      WHEN shardChar = '8' THEN '0' 
+	      WHEN shardChar = '9' THEN '1' 
+	      WHEN shardChar = 'a' THEN '2' 
+	      WHEN shardChar = 'b' THEN '3' 
+	      WHEN shardChar = 'c' THEN '4' 
+	      WHEN shardChar = 'd' THEN '5' 
+	      WHEN shardChar = 'e' THEN '6' 
+	      WHEN shardChar = 'f' THEN '7' 
+	      ELSE shardChar
+	    END;
+	    */
+		CALL incrementShardCount('0');
+	    
+		-- Using a temporary ROW variable seems to cause performance issues, probably due to message group destruction
+	    --DECLARE tempRow ROW;
+		-- CREATE LASTCHILD OF tempRow DOMAIN('DFDL') PARSE(InputRoot.BLOB.BLOB, 0, 1208, '{HL7v27DFDLLibrary}', '{urn:hl7-org:v2xml}:ADT_A03', '', 0);
+		--LOG EVENT SEVERITY 2 CATALOG 'BIPmsgs' MESSAGE 8099 VALUES('InputToSingleThread_LoadBalance',
+		--                 'tempRow.DFDL.ns:ADT_A03.ns:PID.ns:"PID.3.PatientIdentifierList".ns:"CX.1"', tempRow.DFDL.ns:ADT_A03.ns:PID.ns:"PID.3.PatientIdentifierList".ns:"CX.1");
+
+		CREATE LASTCHILD OF Environment.Variables DOMAIN('DFDL') PARSE(InputRoot.BLOB.BLOB, 0, 1208, '{HL7v27DFDLLibrary}', '{urn:hl7-org:v2xml}:ADT_A03', '', 0);
+		LOG EVENT SEVERITY 2 CATALOG 'BIPmsgs' MESSAGE 8099 VALUES('InputToSingleThread_LoadBalance',
+		                 'Environment.Variables.DFDL.ns:ADT_A03.ns:PID.ns:"PID.3.PatientIdentifierList".ns:"CX.1"', Environment.Variables.DFDL.ns:ADT_A03.ns:PID.ns:"PID.3.PatientIdentifierList".ns:"CX.1");
+
+		RETURN TRUE;
+	END;
+END MODULE;

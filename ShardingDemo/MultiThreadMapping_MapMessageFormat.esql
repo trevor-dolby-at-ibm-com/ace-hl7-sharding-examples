@@ -1,0 +1,25 @@
+-- Copyright (c) 2026 Open Technologies for Integration
+-- Licensed under the MIT license (see LICENSE for details)
+
+CREATE COMPUTE MODULE MultiThreadMapping_MapMessageFormat
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- This isn't actually doing any mapping, but does take time to run
+		DECLARE randomSleepTime INTEGER;
+
+		-- Force a full parse
+		DECLARE dfdlRef REFERENCE TO InputRoot.DFDL;
+		MOVE dfdlRef LASTCHILD;
+		MOVE dfdlRef LASTCHILD;
+		MOVE dfdlRef LASTCHILD;
+		MOVE dfdlRef LASTCHILD;
+
+		-- Aim for around 50 msgs/sec (delay around 20ms per message)
+		SET randomSleepTime = 17+(RAND()*4);
+		SET OutputRoot = InputRoot;
+		
+		SET Environment.dummy = SLEEP(randomSleepTime);
+		RETURN TRUE;
+	END;
+
+END MODULE;
